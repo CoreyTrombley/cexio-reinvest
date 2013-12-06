@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>cexio re-invest simulator</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="">
+  <meta name="author" content="">
+
+  <!-- Le styles -->
+  <link href="http://getbootstrap.com/2.3.2/assets/css/bootstrap.css" rel="stylesheet">
+  <style>
+  body {
+    padding-top: 0px; /* 60px to make the container go all the way to the bottom of the topbar */
+  }
+  </style>
+  <link href="http://getbootstrap.com/2.3.2/assets/css/bootstrap-responsive.css" rel="stylesheet">
+
+  <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+      <![endif]-->
+
+    <!-- Le fav and touch icons
+    <link rel="shortcut icon" href="../assets/ico/favicon.ico">
+    <link rel="apple-touch-icon-precomposed" sizes="144x144" href="../assets/ico/apple-touch-icon-144-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="114x114" href="../assets/ico/apple-touch-icon-114-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="72x72" href="../assets/ico/apple-touch-icon-72-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" href="../assets/ico/apple-touch-icon-57-precomposed.png">
+  -->
+</head>
+<body>
+  <div class="container">
+    <h3>cex.io re-invest simulation</h3>
+    <div id="container" style="min-width: 400px; height: 400px; margin: 10 auto"></div>
+    ​
+    <hr>
+    <div class="container">
+      <div class='span3'>
+        <fieldset>
+          <label>Current hashpower (GH/s)</label>
+          <input id='hashrate' type="text">
+        </fieldset>
+      </div>
+      <div class='span3'>
+        <fieldset>
+          <label>Avg. price per GH/s</label>
+          <input id='pricePerGHS' type="text">
+          <span class="help-block">&#xe3f; per GH/s at cex.io</span>
+        </fieldset>
+      </div>
+      <div class='span3'>
+        <fieldset>
+          <label>Difficulty</label>
+          <input id='diff' type="text">
+          <span class="help-block">Start difficulty</span>
+        </fieldset>
+      </div>
+      <div class='span3'>
+        <fieldset>
+          <label>Difficulty increase interval</label>
+          <input id='difficultyIncrDays' type="text">
+          <span class="help-block">Days until the difficulty will increase</span>
+        </fieldset>
+      </div>
+      <div class='span3'>
+        <fieldset>
+          <label>Difficulty increase (%)</label>
+          <input id='difficultyIncrPercent' type="text">
+          <span class="help-block">How many percent the difficulty will increase</span>
+        </fieldset>
+      </div>
+    </div>
+  </div> <!--end container-->
+
+  <div id="footer">
+    <div class="container">
+      <p class="muted credit">
+        Fork me GitHub.<br/ ><br/ >
+        If you like this tool, donate some BTC: <code>1Nf8WgHv6DNwSppKzHH7HHuw24BmFFcNGi</code>, LTC: <code>LSRfZJf75MtwzrbAUfQgqzdK4hHpY4oMW3</code> or FTC: <code>6tfEE48qk8Kgs9ancC82Y2iQBSX3VGYXfL</code>
+      </p>
+    </div>
+  </div>
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+  <script src="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.0.4/js/bootstrap.min.js"></script>
+  <script src="http://code.highcharts.com/highcharts.js"></script>
+  <script src="http://code.highcharts.com/modules/exporting.js"></script>
+  <script type="text/javascript">
+
+  /* defaults */
+  var hashrate= 100; // Gigahash/s -- 10^9 hash/sec
+
+  // current difficulty -- TODO: get this on load from somewhere
+  var diff= 707408283.051;
+
+  // the cex.io price per GH/s in BTC -- TODO: get this from cex.io
+  var pricePerGHS= 0.07;
+
+  // current BTC/USD exchange rate -- TODO: not yet impl.
+  var exchangeRateUSD= 1150;
+  // current BTC/EUR exchange rate -- TODO: not yet impl.
+  var exchangeRateEUR= 800;
+
+  // the amount of days before the next difficulty increase
+  var difficultyIncrDays= 13;
+  // the expected jump in percent
+  var difficultyIncrPercent= 15;
+  // shall we simulate w/ difficulty increase?
+  var simulateDifficulty= true;
+
+  // calculate how many days
+  var steps= 365;
+
+  // summation of our earnings over the time
+  var totalEarnings= 0;
+
+  // data series
+  var hashpowerData= [];
+  hashpowerData.push(hashrate);
+
+  var dailyEarningsData= [];
+  dailyEarningsData.push(0);
+  var difficultyData= [];
+  difficultyData.push(diff);
+  var totalEarningsData= [];
+  totalEarningsData.push(totalEarnings);
+
+  var getDailyEarnings= function(hashrate, difficulty) {
+    shares= Math.pow(2, -32) * (hashrate * Math.pow(10, 9)) * (24 * 60 * 60);
+    earnings= shares * (1/difficulty) * 25;
+    return parseFloat(earnings).toFixed(8);
+  }
+
+  var calculate= function() {
+    // clear the arrays
+    dailyEarningsData.length= 0; hashpowerData.length= 0;
+    difficultyData.length= 0; totalEarningsData.length= 0;
+
+    for(i= 1; i <= steps; i++) {
+      if(simulateDifficulty && (i % difficultyIncrDays) === 0) {
+        diff= (1 + (difficultyIncrPercent/100)) * diff;
+      }
+
+      dailyEarnings= getDailyEarnings(hashrate, diff);
+      hashrate+= dailyEarnings / pricePerGHS;
+      totalEarnings+= Number(dailyEarnings);
+
+      // push the data
+      hashpowerData.push(hashrate);
+      dailyEarningsData.push(Number(dailyEarnings));
+      difficultyData.push(diff);
+      totalEarningsData.push(totalEarnings);
+    }
+
+    // re-draw the chart
+    chart.series[0].setData(hashpowerData, true);
+    chart.series[1].setData(dailyEarningsData, true);
+    chart.series[2].setData(difficultyData, true);
+    chart.series[3].setData(totalEarningsData, true);
+  }
+
+  $(document).ready(function() {
+
+    $('#hashrate').val(hashrate);
+    $('#pricePerGHS').val(pricePerGHS);
+    $('#diff').val(diff);
+    $('#difficultyIncrDays').val(difficultyIncrDays);
+    $('#difficultyIncrPercent').val(difficultyIncrPercent);
+
+    // field change listener.  If triggered, re-calculate and re-draw.
+    $('input').change(function() {
+      hashrate= Number($('#hashrate').val());
+      pricePerGHS= Number($('#pricePerGHS').val());
+      diff= Number($('#diff').val());
+      difficultyIncrDays= Number($('#difficultyIncrDays').val());
+      difficultyIncrPercent= Number($('#difficultyIncrPercent').val());
+      totalEarnings= 0;
+
+      calculate();
+    });
+
+    // highstock chart setup
+    chart = new Highcharts.Chart({
+      chart: {
+        renderTo: 'container',
+        type: 'spline',
+        shadow: true,
+      },
+      title: {
+        text: 'cex.io re-invest simulation'
+      },
+      tooltip: {
+        headerFormat: '<span style="font-size:12px">{point.key}</span><table>',
+        pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
+                     '<td style="padding:0"><b>{point.y:.8f}</b></td></tr>',
+        footerFormat: '</table>',
+        shared: true,
+        useHTML: true
+      },
+      yAxis: [{
+        // Hahspower (GH/s)
+        title: {
+          text: 'Hashpower',
+          align: 'middle',
+          style: {
+            color: '#89A54E'
+          }
+        },
+        labels: {
+          format: '{value} GH/s',
+          overflow: 'justify',
+          style: {
+            color: '#89A54E'
+          }
+        },
+        // min: 0,
+        opposite: true,
+      },{
+        // earnings/day
+        gridLineWidth: 0,
+        title: {
+          text: '\u0E3F/day',
+          align: 'middle',
+          style: {
+            color: '#4572A7'
+          }
+        },
+        labels: {
+          format: '{value} \u0E3F',
+          overflow: 'justify',
+          style: {
+            color: '#4572A7'
+          }
+        },
+        min: 0,
+        opposite: false,
+      },{
+        // difficulty (disabled per default)
+        gridLineWidth: 0,
+        title: {
+          text: 'Difficulty',
+          align: 'middle',
+          style: {
+            color: '#AA4643'
+          }
+        },
+        labels: {
+          overflow: 'justify',
+          style: {
+            color: '#AA4643'
+          }
+        },
+        // min: 0,
+        opposite: true,
+      },{
+        // total earnings
+        gridLineWidth: 0,
+        title: {
+          text: 'Summarized \u0E3F',
+          align: 'middle',
+          style: {
+            color: '#888'
+          }
+        },
+        labels: {
+          format: '{value} \u0E3F',
+          overflow: 'justify',
+          style: {
+            color: '#888'
+          },
+        },
+        min: 0,
+      }],
+      legend: {
+        layout: 'horizontal',
+        align: 'right',
+        verticalAlign: 'top',
+        x: -40,
+        y: -5,
+        floating: true,
+        borderWidth: 0,
+        backgroundColor: '#FFFFFF',
+        shadow: false
+      },
+      credits: {
+        // spread the word
+        enabled: true
+      },
+      series: [{
+        name: 'Hashpower',
+        data: null,
+        yAxis: 0,
+        color: '#89A54E',
+        marker: {
+          enabled: false
+        },
+      },{
+        name: '\u0E3F/day',
+        data: null,
+        yAxis: 1,
+        color: '#4572A7',
+        marker: {
+          enabled: false
+        },
+      },{
+        name: 'Difficulty',
+        data: null,
+        yAxis: 2,
+        color: '#AA4643',
+        marker: {
+          enabled: false
+        },
+        visible: false,
+      },{
+        name: 'Summarized \u0E3F',
+        data: null,
+        yAxis: 3,
+        color: '#888',
+        marker: {
+          enabled: false
+        },
+      }]
+    });
+  calculate();
+  });
+  </script>
+</body>
+</html>
