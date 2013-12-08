@@ -39,9 +39,9 @@ Alexander Zschach <alex@zschach.net>
 
 If you like this tool, find it useful or if you just find it useful, that people out there writing free software for everybody to use or contribute, please donate some coins:
 
-Bitcoins `1Nf8WgHv6DNwSppKzHH7HHuw24BmFFcNGi`   
-Litecoins `LSRfZJf75MtwzrbAUfQgqzdK4hHpY4oMW3`   
-Terracoins `1MsuC6knLeZKHCyQ39Xcw1qcgScS1ZK5R`   
+Bitcoins `1MzFr1eKzLEC1tuoZ7URMB7WWBMgHKimKe`
+Litecoins `LSRfZJf75MtwzrbAUfQgqzdK4hHpY4oMW3`
+Terracoins `1MsuC6knLeZKHCyQ39Xcw1qcgScS1ZK5R`
 Feathercoins `6tfEE48qk8Kgs9ancC82Y2iQBSX3VGYXfL`
 
 ### License
