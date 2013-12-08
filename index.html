@@ -72,6 +72,12 @@
           <span class="help-block">How many percent the difficulty will increase</span>
         </fieldset>
       </div>
+      <div class='span3'>
+        <fieldset>
+          <label></label>
+          <input checked type="checkbox" id="simulateDifficulty"> Simulate difficulty increase
+        </fieldset>
+      </div>
     </div>
   </div> <!--end container-->
 
@@ -162,6 +168,16 @@
     chart.series[3].setData(totalEarningsData, true);
   }
 
+  // read the input field values and set them accordingly
+  var readValues= function() {
+    hashrate= Number($('#hashrate').val());
+    pricePerGHS= Number($('#pricePerGHS').val());
+    diff= Number($('#diff').val());
+    difficultyIncrDays= Number($('#difficultyIncrDays').val());
+    difficultyIncrPercent= Number($('#difficultyIncrPercent').val());
+    totalEarnings= 0;
+  }
+
   $(document).ready(function() {
 
     $('#hashrate').val(hashrate);
@@ -172,13 +188,16 @@
 
     // field change listener.  If triggered, re-calculate and re-draw.
     $('input').change(function() {
-      hashrate= Number($('#hashrate').val());
-      pricePerGHS= Number($('#pricePerGHS').val());
-      diff= Number($('#diff').val());
-      difficultyIncrDays= Number($('#difficultyIncrDays').val());
-      difficultyIncrPercent= Number($('#difficultyIncrPercent').val());
-      totalEarnings= 0;
+      readValues();
+      calculate();
+    });
 
+    // simulate diff checkbox listener
+    $('#simulateDifficulty').live('change', function(){
+      $(this).is(':checked')
+        ? simulateDifficulty= true
+        : simulateDifficulty= false;
+      readValues();
       calculate();
     });
 
