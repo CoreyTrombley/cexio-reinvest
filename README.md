@@ -29,7 +29,7 @@ and point your browser to `http://{yourdomain}/cexio-reinvest/index.html`.
 
 * Take in account, that the hashpower will greatly increase beginning next year (when new Avalon or Butterfly Labs miners will arrive on market).
 
-~~* Turn on/off difficulty simulation …~~
+* ~~Turn on/off difficulty simulation …~~
 
 * …
 
