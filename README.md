@@ -29,6 +29,8 @@ and point your browser to `http://{yourdomain}/cexio-reinvest/index.html`.
 
 * Take in account, that the hashpower will greatly increase beginning next year (when new Avalon or Butterfly Labs miners will arrive on market).
 
+~~* Turn on/off difficulty simulation …~~
+
 * …
 
 ## Credits & License
@@ -39,10 +41,10 @@ Alexander Zschach <alex@zschach.net>
 
 If you like this tool, find it useful or if you just find it useful, that people out there writing free software for everybody to use or contribute, please donate some coins:
 
-Bitcoins `1MzFr1eKzLEC1tuoZ7URMB7WWBMgHKimKe`   
-Litecoins `LSRfZJf75MtwzrbAUfQgqzdK4hHpY4oMW3`   
-Terracoins `1MsuC6knLeZKHCyQ39Xcw1qcgScS1ZK5R`   
-Feathercoins `6tfEE48qk8Kgs9ancC82Y2iQBSX3VGYXfL`   
+Bitcoins `1MzFr1eKzLEC1tuoZ7URMB7WWBMgHKimKe`
+Litecoins `LSRfZJf75MtwzrbAUfQgqzdK4hHpY4oMW3`
+Terracoins `1MsuC6knLeZKHCyQ39Xcw1qcgScS1ZK5R`
+Feathercoins `6tfEE48qk8Kgs9ancC82Y2iQBSX3VGYXfL`
 
 ### License
 
